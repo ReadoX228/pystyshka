@@ -1,6 +1,6 @@
 import os
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 TOKEN = os.getenv("DISCORD_TOKEN") or os.getenv("BOT_TOKEN")
 WELCOME_CHANNEL_ID = int(os.getenv("WELCOME_CHANNEL_ID", "0"))
@@ -10,12 +10,20 @@ intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
 
-bot = commands.Bot(command_prefix="!", intents=intents)
+bot = commands.Bot(command_prefix="!", intents=intents, heartbeat_timeout=150.0)
+
+
+@tasks.loop(minutes=5)
+async def keep_presence():
+    if bot.is_ready():
+        await bot.change_presence(status=discord.Status.online)
 
 
 @bot.event
 async def on_ready():
     print(f"Бот {bot.user} успешно запущен и готов к работе!")
+    if not keep_presence.is_running():
+        keep_presence.start()
 
 
 @bot.event
@@ -50,4 +58,4 @@ async def on_member_join(member: discord.Member):
 if not TOKEN:
     raise RuntimeError("Не задан токен бота в переменных окружения (DISCORD_TOKEN или BOT_TOKEN)!")
 
-bot.run(TOKEN)
+bot.run(TOKEN, reconnect=True)
