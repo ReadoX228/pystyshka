@@ -8,9 +8,13 @@ AUTO_ROLE_ID = int(os.getenv("AUTO_ROLE_ID", "0"))
 
 intents = discord.Intents.default()
 intents.members = True
-intents.message_content = True
 
-bot = commands.Bot(command_prefix="!", intents=intents, heartbeat_timeout=150.0)
+bot = commands.Bot(
+    command_prefix="!",
+    intents=intents,
+    heartbeat_timeout=150.0,
+    help_command=None
+)
 
 
 @tasks.loop(minutes=5)
