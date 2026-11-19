@@ -6,6 +6,8 @@ TOKEN = os.getenv("DISCORD_TOKEN") or os.getenv("BOT_TOKEN")
 WELCOME_CHANNEL_ID = int(os.getenv("WELCOME_CHANNEL_ID", "0"))
 AUTO_ROLE_ID = int(os.getenv("AUTO_ROLE_ID", "0"))
 
+CUSTOM_STATUS_TEXT = "Бот который выдает роли"
+
 intents = discord.Intents.default()
 intents.members = True
 
@@ -20,12 +22,19 @@ bot = commands.Bot(
 @tasks.loop(minutes=5)
 async def keep_presence():
     if bot.is_ready():
-        await bot.change_presence(status=discord.Status.online)
+        await bot.change_presence(
+            status=discord.Status.online,
+            activity=discord.CustomActivity(name=CUSTOM_STATUS_TEXT)
+        )
 
 
 @bot.event
 async def on_ready():
     print(f"Бот {bot.user} успешно запущен и готов к работе!")
+    await bot.change_presence(
+        status=discord.Status.online,
+        activity=discord.CustomActivity(name=CUSTOM_STATUS_TEXT)
+    )
     if not keep_presence.is_running():
         keep_presence.start()
 
